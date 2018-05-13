@@ -3,27 +3,41 @@
  
 from tkinter import *
 from PIL import Image, ImageTk
+import boto3
+from io import BytesIO
 
-lPhotos = ["xwing.jpg", "xwing2.jpg", "dragon.jpg"]
+#lPhotos = ['1.png', '2.jpg', '3.jpg']
 i = 0
 
+s3 = boto3.resource('s3')
+bucket = s3.Bucket('deeplens-xwing')
+bucket_prefix="train"
+lPhotos = iter(bucket.objects.filter(
+    Prefix = bucket_prefix))
+
+def load():
+    global i
+    print(i)
+    key = next(lPhotos)
+    while key.key[-1] == '/' or '.lst' in key.key:
+        key = next(lPhotos)
+    i += 1
+    obj_body = key.get()['Body'].read()
+    image = Image.open(BytesIO(obj_body))
+    image = image.resize((500,250), Image.ANTIALIAS)
+    photo = ImageTk.PhotoImage(image)
+    canvas.create_image(250, 125, image=photo)
+    canvas.image = photo #Changer image
+
 def validate():
-        global i
-        print(i)
-        answer= value.get()
-        if answer == "":
-            print("Merci de répondre")
-        else:
-            print("Réponse : "+answer)
-            i += 1
-            print(i)
-            
-            image = Image.open(lPhotos[i])
-            image = image.resize((500,250), Image.ANTIALIAS)
-            photo = ImageTk.PhotoImage(image)
-            canvas.create_image(250, 125, image=photo)
-            #canvas.configure(image=photo) #Configure
-            canvas.image = photo #Changer image
+    global i
+    print(i)
+    answer= value.get()
+    if answer == "":
+        print("Merci de répondre")
+    else:
+        print("Réponse : "+answer)
+    load()        
             
             
 
@@ -33,10 +47,7 @@ label = Label(fenetre, text="Est-ce un X-Wing ?")
 label.grid(row=1, column=1, columnspan = 2)
 
 canvas = Canvas(fenetre, width=500, height=250, bg='ivory')
-image = Image.open(lPhotos[i])
-image = image.resize((500,250), Image.ANTIALIAS)
-photo = ImageTk.PhotoImage(image)
-canvas.create_image(250, 125, image=photo)
+load()
 canvas.grid(row=2, column=1, columnspan = 2)
 
 # radiobutton
