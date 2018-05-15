@@ -1,0 +1,97 @@
+{
+    "Resources" : {
+      "CreateTrainingJob" : {
+          "Type" : "AWS::SageMaker::CreateTrainingJob",
+          "Properties" : {
+            "AlgorithmSpecification": { 
+                "TrainingImage": "Image Classification",
+                "TrainingInputMode": "File"
+            },
+            "HyperParameters": { 
+                "beta_1" : "0.9", 
+                "beta_2" : "0.999", 
+                "checkpoint_frequency" : "1", 
+                "epochs" : "30", 
+                "eps" : "1e-8", 
+                "gamma" : "0.9", 
+                "image_shape" : "3,224,224", 
+                "learning_rate" : "0.1", 
+                "lr_scheduler_factor" : "0.1", 
+                "mini_batch_size" : "3", 
+                "momentum" : "0.9", 
+                "num_classes" : "1", 
+                "num_layers" : "152", 
+                "num_training_samples" : "14", 
+                "optimizer" : "sgd", 
+                "use_pretrained_model" : "0", 
+                "weight_decay" : "0.0001"
+            },
+            "InputDataConfig": [
+                    {
+                    "ChannelName": "train",
+                    "CompressionType": "None",
+                    "ContentType": "application/x-image",
+                    "DataSource": {
+                        "S3DataSource": {
+                        "S3DataDistributionType": "FullyReplicated",
+                        "S3DataType": "S3Prefix",
+                        "S3Uri": "s3://deeplens-sagemaker-xwing/train"
+                        }
+                    },
+                    "RecordWrapperType": "None"
+                    },
+                    {
+                    "ChannelName": "validation",
+                    "CompressionType": "None",
+                    "ContentType": "application/x-image",
+                    "DataSource": {
+                        "S3DataSource": {
+                        "S3DataDistributionType": "FullyReplicated",
+                        "S3DataType": "S3Prefix",
+                        "S3Uri": "s3://deeplens-sagemaker-xwing/validation"
+                        }
+                    },
+                    "RecordWrapperType": "None"
+                    },
+                    {
+                    "ChannelName": "train_lst",
+                    "CompressionType": "None",
+                    "DataSource": {
+                        "S3DataSource": {
+                        "S3DataDistributionType": "FullyReplicated",
+                        "S3DataType": "S3Prefix",
+                        "S3Uri": "s3://deeplens-sagemaker-xwing/train/train.lst"
+                        }
+                    },
+                    "RecordWrapperType": "None"
+                    },
+                    {
+                    "ChannelName": "validation_lst",
+                    "CompressionType": "None",
+                    "DataSource": {
+                        "S3DataSource": {
+                        "S3DataDistributionType": "FullyReplicated",
+                        "S3DataType": "S3Prefix",
+                        "S3Uri": "s3://deeplens-sagemaker-xwing/validation/validation.lst"
+                        }
+                    },
+                    "RecordWrapperType": "None"
+            }],
+            "OutputDataConfig": { 
+                "S3OutputPath": "s3://deeplens-sagemaker-xwing/output/"
+            },
+            "ResourceConfig": { 
+                "InstanceCount": 1,
+                "InstanceType": "ml.p2.xlarge",
+                "VolumeSizeInGB": 20
+            },
+            "RoleArn": "arn:aws:iam::****accountid****:role/service-role/AmazonSageMaker-ExecutionRole-20180512T161688",
+            "StoppingCondition": { 
+                "MaxRuntimeInSeconds": 3600
+            },
+            "Tags": [],
+            "TrainingJobName": "train"
+          }
+      }
+    }
+}
